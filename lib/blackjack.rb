@@ -1,0 +1,2 @@
+module Blackjack
+end
