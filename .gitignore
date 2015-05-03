@@ -2,3 +2,4 @@
 *.swo
 .ruby-version
 .ruby-gemset
+.vimrc
