@@ -23,4 +23,15 @@ describe Blackjack::Deck do
       (0..51).all? { |i| deck.cards[i] == another_deck.cards[i] }
     ).to be_falsey
   end
+
+  context '#get' do
+    it 'takes cards from the beginning of the deck' do
+      first_cards = deck.cards[0..1]
+      expect(deck.get(2)).to match_array(first_cards)
+    end
+
+    it 'removes cards after they were taken' do
+      expect { deck.get(2)}.to change { deck.size }.by(-2)
+    end
+  end
 end
