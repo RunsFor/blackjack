@@ -30,7 +30,7 @@ class Blackjack::Card
   end
 
   def two?
-    rank == :'1'
+    rank == :'2'
   end
 
   def three?
