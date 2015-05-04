@@ -2,21 +2,32 @@ require 'spec_helper'
 require 'byebug'
 
 describe Blackjack::Hand do
-  subject(:hand) { described_class.new }
+  subject(:deck) { Blackjack::Deck.new }
+  subject(:hand) { described_class.new(deck: deck) }
 
   context '.new' do
     it 'defaults to two random cards' do
       expect(hand.cards.size).to eq(2)
     end
 
-    context 'with arguments' do
-      subject(:deck) { described_class.new(ace_spades, ten_clubs) }
+    context 'When cards provided' do
+      subject(:hand) { described_class.new(deck: deck, cards: [ ace_spades, ten_clubs]) }
 
       let(:ace_spades) { Blackjack::Card.new(color: :spades, rank: :ace) }
       let(:ten_clubs) { Blackjack::Card.new(color: :clubs, rank: :ten) }
 
       it 'takes cards as arguments' do
-        expect(deck.cards).to contain_exactly(ace_spades, ten_clubs)
+        expect(hand.cards).to contain_exactly(ace_spades, ten_clubs)
+      end
+    end
+
+    context 'When deck provided' do
+      subject(:another_hand) { described_class.new(deck: deck) }
+
+      it 'takes cards from the deck' do
+        expect(hand.cards.size).to eq(2)
+        expect(another_hand.cards.size).to eq(2)
+        expect(deck.cards.size).to eq(48)
       end
     end
   end
@@ -37,13 +48,13 @@ describe Blackjack::Hand do
     let(:jack) { Blackjack::Card.new(rank: :jack) }
     let(:cards) { [] }
 
-    subject(:deck) { described_class.new(*cards) }
+    subject(:hand) { described_class.new(deck: deck, cards: cards) }
 
     context 'ace and king' do
       let(:cards) { [ ace, king ] }
 
       it '21' do
-        expect(deck.points).to eq(21)
+        expect(hand.points).to eq(21)
       end
     end
 
@@ -51,7 +62,7 @@ describe Blackjack::Hand do
       let(:cards) { [ queen, jack ] }
 
       it '20' do
-        expect(deck.points).to eq(20)
+        expect(hand.points).to eq(20)
       end
     end
 
@@ -59,7 +70,7 @@ describe Blackjack::Hand do
       let(:cards) { [ two, three, four, five, six ] }
 
       it '20' do
-        expect(deck.points).to eq(20)
+        expect(hand.points).to eq(20)
       end
     end
 
@@ -67,7 +78,7 @@ describe Blackjack::Hand do
       let(:cards) { [ nine, ace, ace, king ] }
 
       it '21' do
-        expect(deck.points).to eq(21)
+        expect(hand.points).to eq(21)
       end
     end
   end

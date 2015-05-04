@@ -1,9 +1,8 @@
 class Blackjack::Hand
-
   attr_reader :cards
 
-  def initialize(*cards)
-    @cards = cards.empty? ? Blackjack::Deck.new.get(2) : cards
+  def initialize(deck:, cards: [])
+    @cards = cards.empty? ? deck.get(2) : cards
   end
 
   def sort
