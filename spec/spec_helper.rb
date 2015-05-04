@@ -1,6 +1,4 @@
 require 'rspec'
 require 'blackjack'
-require 'blackjack/deck'
-require 'blackjack/card'
-require 'blackjack/hand'
-require 'blackjack/play'
+
+Dir.glob('lib/**/*.rb').each { |f| require File.absolute_path(f) }
