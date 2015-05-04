@@ -1,9 +1,10 @@
 require 'spec_helper'
-require 'byebug'
 
 describe Blackjack::Hand do
   subject(:deck) { Blackjack::Deck.new }
-  subject(:hand) { described_class.new(deck: deck) }
+  subject(:hand) { described_class.new(deck: deck, cards: cards) }
+
+  let(:cards) { [] }
 
   context '.new' do
     it 'defaults to two random cards' do
@@ -11,10 +12,9 @@ describe Blackjack::Hand do
     end
 
     context 'When cards provided' do
-      subject(:hand) { described_class.new(deck: deck, cards: [ ace_spades, ten_clubs]) }
-
       let(:ace_spades) { Blackjack::Card.new(color: :spades, rank: :ace) }
       let(:ten_clubs) { Blackjack::Card.new(color: :clubs, rank: :ten) }
+      let(:cards) { [ ace_spades, ten_clubs ] }
 
       it 'takes cards as arguments' do
         expect(hand.cards).to contain_exactly(ace_spades, ten_clubs)
@@ -32,6 +32,27 @@ describe Blackjack::Hand do
     end
   end
 
+  context '#splittable?' do
+    let(:ace_spades) { Blackjack::Card.new(rank: :ace, color: :spades) }
+    let(:ace_clubs) { Blackjack::Card.new(rank: :ace, color: :clubs) }
+    let(:two_spades) { Blackjack::Card.new(rank: :'2', color: :spades) }
+
+    context 'When two cards has the same rank' do
+      let(:cards) { [ ace_spades, ace_clubs ] }
+      it { is_expected.to be_splittable }
+    end
+
+    context 'When two cards has different ranks' do
+      let(:cards) { [ ace_spades, two_spades ] }
+      it { is_expected.to_not be_splittable }
+    end
+
+    context 'When there are more than two cards' do
+      let(:cards) { [ ace_spades, two_spades, ace_clubs ] }
+      it { is_expected.to_not be_splittable }
+    end
+  end
+
   context '#points' do
     let(:ace) { Blackjack::Card.new(rank: :ace) }
     let(:two) { Blackjack::Card.new(rank: :'2') }
@@ -46,9 +67,6 @@ describe Blackjack::Hand do
     let(:king) { Blackjack::Card.new(rank: :king) }
     let(:queen) { Blackjack::Card.new(rank: :queen) }
     let(:jack) { Blackjack::Card.new(rank: :jack) }
-    let(:cards) { [] }
-
-    subject(:hand) { described_class.new(deck: deck, cards: cards) }
 
     context 'ace and king' do
       let(:cards) { [ ace, king ] }

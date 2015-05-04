@@ -1,6 +1,7 @@
 class Blackjack::Hand
   attr_reader :cards
 
+  # TODO: Ignore deck, when cards provided?
   def initialize(deck:, cards: [])
     @cards = cards.empty? ? deck.get(2) : cards
   end
@@ -38,5 +39,9 @@ class Blackjack::Hand
 
       sum
     end
+  end
+
+  def splittable?
+    cards.size == 2 && cards.first.rank == cards.last.rank
   end
 end
