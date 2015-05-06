@@ -6,15 +6,24 @@ describe Blackjack::Hand do
   let(:cards) { [] }
 
   context '.new' do
+    let(:ace_spades) { Blackjack::Card.new(color: :spades, rank: :ace) }
+    let(:ten_clubs) { Blackjack::Card.new(color: :clubs, rank: :ten) }
+
     it { is_expected.to be_empty }
 
     context 'When cards provided' do
-      let(:ace_spades) { Blackjack::Card.new(color: :spades, rank: :ace) }
-      let(:ten_clubs) { Blackjack::Card.new(color: :clubs, rank: :ten) }
       let(:cards) { [ ace_spades, ten_clubs ] }
 
       it 'takes cards as arguments' do
         expect(hand.cards).to contain_exactly(ace_spades, ten_clubs)
+      end
+    end
+
+    context 'When cards is not an instance of an Array' do
+      let(:cards) { ace_spades }
+
+      it 'raises an error' do
+        expect { hand }.to raise_error
       end
     end
   end

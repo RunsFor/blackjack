@@ -3,6 +3,7 @@ class Blackjack::Hand
 
   # TODO: Ignore deck, when cards provided?
   def initialize(cards: [])
+    raise 'Array of cards is expected' unless cards.is_a?(Array)
     @cards = cards || []
   end
 
