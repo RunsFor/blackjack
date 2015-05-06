@@ -36,10 +36,29 @@ describe Blackjack::GameService do
     end
   end
 
+  context '#current_player_hand' do
+    let(:five) { Blackjack::Card.new(rank: :'5') }
+    let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
+
+    context 'before splitting' do
+      it 'points to the first hand' do
+        expect(game.current_player_hand).to eq(game.player_hands.first)
+      end
+    end
+
+    context 'after splitting and staying' do
+      before { game.split; game.stay }
+
+      it 'points to the second hand' do
+        expect(game.current_player_hand).to eq(game.player_hands.last)
+      end
+    end
+  end
+
   context '#hit' do
     # TODO: Sometimes this test failed. Possibly because of blackjack
     it 'provides players hand with one card' do
-      expect { game.hit }.to change { game.player_hand.cards.size }.by(1)
+      expect { game.hit }.to change { game.current_player_hand.cards.size }.by(1)
     end
 
     context 'When there are more than 20 points in the hand' do
