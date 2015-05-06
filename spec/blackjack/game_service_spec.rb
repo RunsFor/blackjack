@@ -18,6 +18,17 @@ describe Blackjack::GameService do
       expect(game.total_amount).to eq(1000)
     end
 
+    context 'When player gets blackjack' do
+      let(:king) { Blackjack::Card.new(rank: :king) }
+      let(:ace) { Blackjack::Card.new(rank: :ace) }
+      let(:deck) { Blackjack::Deck.new(ace, king, king, king) }
+
+      it 'ends the round' do
+        expect_any_instance_of(Blackjack::GameService).to receive(:end_round)
+        game
+      end
+    end
+
     context 'When options provided' do
       let(:options) { { bet: 100, amount: 2000 } }
 

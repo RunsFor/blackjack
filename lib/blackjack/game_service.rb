@@ -2,6 +2,7 @@ class Blackjack::GameService
   attr_reader :dealer_hand, :player_hands, :deck,
     :total_amount, :hand_number
 
+  # TODO: Maybe introduce round status and round results
   def initialize(deck: nil, options: {})
     @current_bet = options[:bet] || 50
     @total_amount = options[:amount] || 1000
@@ -9,12 +10,13 @@ class Blackjack::GameService
 
     @deck = deck || Blackjack::Deck.new
     @hand_number = 1
-    # TODO: Deal with blackjacks
-    # - When player gets blackjack
-    # - When dealer has hidden blackjack
-    # - When dealer has blackjack opportunite (insurance)
     @player_hands = [ Blackjack::Hand.new(cards: @deck.get(2), bet: @current_bet) ]
     @dealer_hand = Blackjack::Hand.new(cards: @deck.get(2))
+
+    # TODO: What about dealers blackjack insurance?
+    if player_blackjack? || dealer_blackjack?
+      end_round
+    end
   end
 
   def current_player_hand
@@ -98,6 +100,16 @@ class Blackjack::GameService
       end
       agg
     end
+  end
+
+  private
+
+  def player_blackjack?
+    current_player_hand.cards.size == 2 && current_player_hand.points == 21
+  end
+
+  def dealer_blackjack?
+    @dealer_hand.cards.size == 2 && @dealer_hand.points == 21
   end
 end
 
