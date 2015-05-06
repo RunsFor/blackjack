@@ -6,9 +6,7 @@ describe Blackjack::Hand do
   let(:cards) { [] }
 
   context '.new' do
-    it 'defaults to two random cards' do
-      expect(hand.cards.size).to eq(2)
-    end
+    it { is_expected.to be_empty }
 
     context 'When cards provided' do
       let(:ace_spades) { Blackjack::Card.new(color: :spades, rank: :ace) }
@@ -39,6 +37,16 @@ describe Blackjack::Hand do
     context 'When there are more than two cards' do
       let(:cards) { [ ace_spades, two_spades, ace_clubs ] }
       it { is_expected.to_not be_splittable }
+    end
+  end
+
+  context '#take' do
+    let(:ace_spades) { Blackjack::Card.new(rank: :ace, color: :spades) }
+
+    it 'takes a card' do
+      expect { hand.take(ace_spades) }
+        .to change { hand.cards.size }.by(1)
+        .and change {hand.points}.by(11)
     end
   end
 

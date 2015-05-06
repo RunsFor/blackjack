@@ -12,6 +12,10 @@ class Blackjack::Hand
     end
   end
 
+  def take(*cards)
+    @cards.push *cards
+  end
+
   def points
     sort.inject(0) do |sum, card|
       case
@@ -43,5 +47,9 @@ class Blackjack::Hand
 
   def splittable?
     cards.size == 2 && cards.first.rank == cards.last.rank
+  end
+
+  def empty?
+    cards.empty?
   end
 end
