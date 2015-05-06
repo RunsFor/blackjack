@@ -55,6 +55,26 @@ describe Blackjack::GameService do
     end
   end
 
+  context '#current_bet' do
+    let(:five) { Blackjack::Card.new(rank: :'5') }
+    let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
+    let(:options) { { bet: 100 } }
+
+    context 'before splitting' do
+      it 'returns bet from players hand' do
+        expect(game.current_bet).to eq(100)
+      end
+    end
+
+    context 'after splitting' do
+      before { game.split }
+
+      it 'sums bets from all hands' do
+        expect(game.current_bet).to eq(200)
+      end
+    end
+  end
+
   context '#hit' do
     let(:five) { Blackjack::Card.new(rank: :'5') }
     let(:available_cards) { [ five ] * 10 }

@@ -1,22 +1,28 @@
 class Blackjack::GameService
-  attr_reader :dealer_hand, :player_hands, :deck, :current_bet,
+  attr_reader :dealer_hand, :player_hands, :deck,
     :total_amount, :hand_number
 
-
   def initialize(deck: nil, options: {})
-    # TODO: Improve to work with splitted bets. Maybe put bet into Hand
     @current_bet = options[:bet] || 50
     @total_amount = options[:amount] || 1000
     raise "Bet cannot be more than total amount" if @current_bet > @total_amount
 
     @deck = deck || Blackjack::Deck.new
     @hand_number = 1
-    @player_hands = [ Blackjack::Hand.new(cards: @deck.get(2)) ]
+    # TODO: Deal with blackjacks
+    # - When player gets blackjack
+    # - When dealer has hidden blackjack
+    # - When dealer has blackjack opportunite (insurance)
+    @player_hands = [ Blackjack::Hand.new(cards: @deck.get(2), bet: @current_bet) ]
     @dealer_hand = Blackjack::Hand.new(cards: @deck.get(2))
   end
 
   def current_player_hand
     player_hands[@hand_number - 1]
+  end
+
+  def current_bet
+    @player_hands.map(&:bet).reduce(:+)
   end
 
   # TODO: What if card in the deck ends?
@@ -34,9 +40,10 @@ class Blackjack::GameService
 
   def split
     if current_player_hand.splittable?
+      bet = current_player_hand.bet
       @player_hands = [
-        Blackjack::Hand.new(cards: [ current_player_hand.cards.first ]),
-        Blackjack::Hand.new(cards: [ current_player_hand.cards.last ]),
+        Blackjack::Hand.new(cards: [ current_player_hand.cards.first ], bet: bet),
+        Blackjack::Hand.new(cards: [ current_player_hand.cards.last ], bet: bet),
       ]
     else
       raise "You cannot split this hand"

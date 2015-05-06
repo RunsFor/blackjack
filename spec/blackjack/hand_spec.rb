@@ -1,15 +1,29 @@
 require 'spec_helper'
 
 describe Blackjack::Hand do
-  subject(:hand) { described_class.new(cards: cards) }
+  subject(:hand) { described_class.new(cards: cards, bet: bet) }
 
   let(:cards) { [] }
+  let(:bet) { 0 }
 
   context '.new' do
     let(:ace_spades) { Blackjack::Card.new(color: :spades, rank: :ace) }
     let(:ten_clubs) { Blackjack::Card.new(color: :clubs, rank: :ten) }
 
     it { is_expected.to be_empty }
+
+    context 'When bet provided' do
+      let(:bet) { 100 }
+
+      it 'stores hands bet' do
+        expect(hand.bet).to eq(100)
+      end
+
+      it 'updates bet for existing hand' do
+        hand.bet = 200
+        expect(hand.bet).to eq(200)
+      end
+    end
 
     context 'When cards provided' do
       let(:cards) { [ ace_spades, ten_clubs ] }

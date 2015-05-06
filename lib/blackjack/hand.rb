@@ -1,10 +1,11 @@
 class Blackjack::Hand
+  attr_accessor :bet
   attr_reader :cards
 
-  # TODO: Ignore deck, when cards provided?
-  def initialize(cards: [])
+  def initialize(cards: [], bet: 0)
     raise 'Array of cards is expected' unless cards.is_a?(Array)
     @cards = cards || []
+    @bet = bet
   end
 
   def sort
