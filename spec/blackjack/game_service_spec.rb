@@ -56,19 +56,70 @@ describe Blackjack::GameService do
   end
 
   context '#hit' do
+    let(:five) { Blackjack::Card.new(rank: :'5') }
+    let(:available_cards) { [ five ] * 10 }
+    let(:deck) { Blackjack::Deck.new(*available_cards) }
+
     # TODO: Sometimes this test failed. Possibly because of blackjack
     it 'provides players hand with one card' do
       expect { game.hit }.to change { game.current_player_hand.cards.size }.by(1)
     end
 
-    context 'When there are more than 20 points in the hand' do
-      let(:ace_spades) { Blackjack::Card.new(rank: :ace, color: :spades) }
-      let(:king_spades) { Blackjack::Card.new(rank: :king, color: :spades) }
-
-      let(:deck) { Blackjack::Deck.new(ace_spades, king_spades) }
+    context 'When there are more than 20 points in the second hand' do
+      before do
+        game.split
+        game.stay
+        4.times { |_| game.hit }
+      end
 
       it 'refuses to hit' do
         expect { game.hit }.to raise_error(StandardError, "Can't take more cards")
+      end
+    end
+
+    context 'For splitted hand' do
+      before { game.split }
+
+      context 'when current hand is first' do
+        context 'if hand points becomes >= 21' do
+          before { 3.times { |_| game.hit } }
+
+          it 'switches current hand' do
+            expect { game.hit }
+              .to change { game.current_player_hand }
+              .from(game.player_hands.first).to(game.player_hands.last)
+          end
+        end
+
+        context 'if hand points is still < 21' do
+          it 'provides current player hand with one more card' do
+            expect { game.hit }
+              .to change { game.current_player_hand.cards.size }
+              .by(1)
+          end
+        end
+      end
+
+      context 'when current hand is second' do
+        before { game.stay }
+
+        context 'if hand points becomes >= 21' do
+          before { 3.times { |_| game.hit } }
+
+          it 'makes dealers turn and ends the round' do
+            expect(game).to receive(:dealers_turn)
+            expect(game).to receive(:end_round)
+            game.hit
+          end
+        end
+
+        context 'if hand points is still < 21' do
+          it 'provides current player hand with one more card' do
+            expect { game.hit }
+              .to change { game.current_player_hand.cards.size }
+              .by(1)
+          end
+        end
       end
     end
   end

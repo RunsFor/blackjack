@@ -19,20 +19,24 @@ class Blackjack::GameService
     player_hands[@hand_number - 1]
   end
 
-  # TODO: Improve to work with splitted hands
   # TODO: What if card in the deck ends?
-  # TODO: When reaches 21, automatically stay
-  # TODO: When busting, automatically ends the round
   def hit
-    raise "Can't take more cards" if current_player_hand.points >= 21
+    if @hand_number > 2 || current_player_hand.points >= 21
+      raise "Can't take more cards"
+    end
+
     current_player_hand.take *deck.get(1)
+
+    if current_player_hand.points >= 21
+      stay
+    end
   end
 
   def split
     if current_player_hand.splittable?
       @player_hands = [
-        Blackjack::Hand.new(cards: current_player_hand.cards.first),
-        Blackjack::Hand.new(cards: current_player_hand.cards.last),
+        Blackjack::Hand.new(cards: [ current_player_hand.cards.first ]),
+        Blackjack::Hand.new(cards: [ current_player_hand.cards.last ]),
       ]
     else
       raise "You cannot split this hand"
@@ -75,7 +79,7 @@ class Blackjack::GameService
       if hand.points > @dealer_hand.points
         agg[:player] << :win
         agg[:total_amount] += @current_bet
-      elsif current_player_hand.points < @dealer_hand.points
+      elsif hand.points < @dealer_hand.points
         agg[:player] << :loose
         agg[:total_amount] -= @current_bet
       else
