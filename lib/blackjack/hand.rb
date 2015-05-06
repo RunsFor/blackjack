@@ -2,8 +2,8 @@ class Blackjack::Hand
   attr_reader :cards
 
   # TODO: Ignore deck, when cards provided?
-  def initialize(deck:, cards: [])
-    @cards = cards.empty? ? deck.get(2) : cards
+  def initialize(cards: [])
+    @cards = cards || []
   end
 
   def sort

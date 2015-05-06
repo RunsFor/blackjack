@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 describe Blackjack::Hand do
-  subject(:deck) { Blackjack::Deck.new }
-  subject(:hand) { described_class.new(deck: deck, cards: cards) }
+  subject(:hand) { described_class.new(cards: cards) }
 
   let(:cards) { [] }
 
@@ -18,16 +17,6 @@ describe Blackjack::Hand do
 
       it 'takes cards as arguments' do
         expect(hand.cards).to contain_exactly(ace_spades, ten_clubs)
-      end
-    end
-
-    context 'When deck provided' do
-      subject(:another_hand) { described_class.new(deck: deck) }
-
-      it 'takes cards from the deck' do
-        expect(hand.cards.size).to eq(2)
-        expect(another_hand.cards.size).to eq(2)
-        expect(deck.cards.size).to eq(48)
       end
     end
   end
