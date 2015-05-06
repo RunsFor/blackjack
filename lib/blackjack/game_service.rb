@@ -25,13 +25,17 @@ class Blackjack::GameService
     @player_hands.map(&:bet).reduce(:+)
   end
 
-  # TODO: What if card in the deck ends?
   def hit
     if @hand_number > 2 || current_player_hand.points >= 21
       raise "Can't take more cards"
     end
 
-    current_player_hand.take *deck.get(1)
+    cards = deck.get(1)
+    if cards.empty?
+      raise 'No more cards in the deck'
+    else
+      current_player_hand.take *cards
+    end
 
     if current_player_hand.points >= 21
       stay

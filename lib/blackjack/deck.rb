@@ -9,7 +9,6 @@ class Blackjack::Deck
     cards.size
   end
 
-  # TODO: Throw Exception when there are no more cards in a deck
   def get(num = 0)
     cards.shift(num)
   end
