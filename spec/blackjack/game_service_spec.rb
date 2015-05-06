@@ -55,10 +55,27 @@ describe Blackjack::GameService do
   end
 
   context '#stay' do
-    it 'evaluates dealears turn and ends the round' do
-      expect(game).to receive(:dealers_turn).once
-      expect(game).to receive(:end_round).once
-      game.stay
+    let(:five) { Blackjack::Card.new(rank: :'5') }
+    let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
+
+    before { game.split }
+
+    context 'when playing with last hand of the player' do
+      before { game.stay }
+
+      it 'evaluates dealears turn and ends the round' do
+        expect(game).to receive(:dealers_turn).once
+        expect(game).to receive(:end_round).once
+        game.stay
+      end
+    end
+
+    context 'when playing with first hand of the player' do
+      it 'increasing hand_number' do
+        expect(game).to_not receive(:dealers_turn)
+        expect(game).to_not receive(:end_round)
+        expect { game.stay }.to change { game.hand_number }.by(1)
+      end
     end
   end
 
@@ -73,8 +90,41 @@ describe Blackjack::GameService do
     end
   end
 
+  context '#split' do
+    context 'when card have the same rank' do
+      let(:five) { Blackjack::Card.new(rank: :'5') }
+      let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
+
+      it 'Splits hands into two' do
+        expect { game.split }.to change { game.player_hands.size }.from(1).to(2)
+      end
+    end
+
+    context 'when it is not splittable' do
+      it 'raises an exception' do
+        expect_any_instance_of(Blackjack::Hand).to receive(:splittable?) { false }
+        expect { game.split }.to raise_error
+      end
+    end
+  end
+
   context '#surrender' do
-    it ''
+    let(:options) { { bet: 100 } }
+    it 'returns half of the bet to the player and ends the round' do
+      expect(game).to receive(:end_round)
+      expect { game.surrender }.to change { game.total_amount }.by(-50)
+    end
+
+    context 'when there is more than 1 hand' do
+      let(:five) { Blackjack::Card.new(rank: :'5') }
+      let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
+
+      before { game.split }
+
+      it 'raises an exception' do
+        expect { game.surrender }.to raise_error
+      end
+    end
   end
 
   context '#end_round' do
