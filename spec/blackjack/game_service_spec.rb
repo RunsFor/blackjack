@@ -13,6 +13,10 @@ describe Blackjack::GameService do
   it { is_expected.to respond_to(:surrender) }
 
   describe 'defaults' do
+    it 'marks the game as incompleted' do
+      expect(game).to_not be_round_completed
+    end
+
     it 'bet is 50, total amount is 1000' do
       expect(game.current_bet).to eq(50)
       expect(game.total_amount).to eq(1000)
@@ -238,34 +242,35 @@ describe Blackjack::GameService do
 
   context '#end_round' do
     let(:king) { Blackjack::Card.new(rank: :king) }
-    let(:queen) { Blackjack::Card.new(rank: :queen) }
-    let(:ace) { Blackjack::Card.new(rank: :ace) }
+    let(:nine) { Blackjack::Card.new(rank: :'9') }
     let(:options) { { bet: 100, amount: 1000 } }
 
+    before { game.end_round }
+
     context 'when dealer wins' do
-      let(:deck) { Blackjack::Deck.new(king, queen, king, ace) }
+      let(:deck) { Blackjack::Deck.new(king, nine, king, king) }
 
       it 'takes money from player' do
-        result = game.end_round
-        expect(result).to include(player: [ :loose ], total_amount: 900)
+        expect(game.results).to include(player: [ :loose ], total_amount: 900)
+        expect(game).to be_round_completed
       end
     end
 
     context 'when player wins' do
-      let(:deck) { Blackjack::Deck.new(king, ace, king, queen) }
+      let(:deck) { Blackjack::Deck.new(king, king, king, nine) }
 
       it 'gives money to the player' do
-        result = game.end_round
-        expect(result).to include(player: [ :win ], total_amount: 1100)
+        expect(game.results).to include(player: [ :win ], total_amount: 1100)
+        expect(game).to be_round_completed
       end
     end
 
     context 'dealers and players score are equal' do
-      let(:deck) { Blackjack::Deck.new(king, king, king, queen) }
+      let(:deck) { Blackjack::Deck.new(king, king, king, king) }
 
       it 'gives money to the player' do
-        result = game.end_round
-        expect(result).to include(player: [ :draw ], total_amount: 1000)
+        expect(game.results).to include(player: [ :draw ], total_amount: 1000)
+        expect(game).to be_round_completed
       end
     end
   end

@@ -1,13 +1,14 @@
 class Blackjack::GameService
   attr_reader :dealer_hand, :player_hands, :deck,
-    :total_amount, :hand_number
+    :total_amount, :hand_number, :results
 
-  # TODO: Maybe introduce round status and round results
   def initialize(deck: nil, options: {})
     @current_bet = options[:bet] || 50
     @total_amount = options[:amount] || 1000
     raise "Bet cannot be more than total amount" if @current_bet > @total_amount
 
+    @results = { player: [], total_amount: @total_amount }
+    @completed = false
     @deck = deck || Blackjack::Deck.new
     @hand_number = 1
     @player_hands = [ Blackjack::Hand.new(cards: @deck.get(2), bet: @current_bet) ]
@@ -88,7 +89,7 @@ class Blackjack::GameService
   end
 
   def end_round
-    @player_hands.inject({ player: [], total_amount: @total_amount }) do |agg, hand|
+    @player_hands.inject(@results) do |agg, hand|
       if hand.points > @dealer_hand.points
         agg[:player] << :win
         agg[:total_amount] += @current_bet
@@ -100,6 +101,12 @@ class Blackjack::GameService
       end
       agg
     end
+
+    @completed = true
+  end
+
+  def round_completed?
+    @completed
   end
 
   private
