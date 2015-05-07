@@ -13,6 +13,9 @@ describe Blackjack::GameService do
   it { is_expected.to respond_to(:surrender) }
 
   describe 'defaults' do
+    let(:ace) { Blackjack::Card.new(rank: :ace) }
+    let(:deck) { Blackjack::Deck.new(ace, ace, ace, ace) }
+
     it 'marks the game as incompleted' do
       expect(game).to_not be_round_completed
     end

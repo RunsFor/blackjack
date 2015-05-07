@@ -1,4 +1,8 @@
+require 'forwardable'
+
 class Blackjack::Hand
+  extend Forwardable
+
   attr_accessor :bet
   attr_reader :cards
 
@@ -8,18 +12,12 @@ class Blackjack::Hand
     @bet = bet
   end
 
-  def sort
-    @cards.sort do |a, b|
-      Blackjack::Card::RANKS.index(b.rank) <=> Blackjack::Card::RANKS.index(a.rank)
-    end
-  end
+  def_delegator :@cards, :push, :take
+  def_delegator :@cards, :empty?
 
-  def take(*cards)
-    @cards.push *cards
-  end
-
+  # TODO: Maybe refactor
   def points
-    sort.inject(0) do |sum, card|
+    @cards.sort.inject(0) do |sum, card|
       case
       when card.two?
         sum += 2
@@ -49,9 +47,5 @@ class Blackjack::Hand
 
   def splittable?
     cards.size == 2 && cards.first.rank == cards.last.rank
-  end
-
-  def empty?
-    cards.empty?
   end
 end

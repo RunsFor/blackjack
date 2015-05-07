@@ -14,9 +14,14 @@ class Blackjack::Card
     new
   end
 
+  # TODO: Add #to_s method
   def initialize(color: nil, rank: nil)
     @color = color || COLORS.sample
     @rank = rank || RANKS.sample
+  end
+
+  def <=>(card)
+    Blackjack::Card::RANKS.index(card.rank) <=> Blackjack::Card::RANKS.index(rank)
   end
 
   def ==(card)
@@ -25,6 +30,7 @@ class Blackjack::Card
       color == card.color
   end
 
+  # TODO: Maybe refactor
   def ace?
     rank == :ace
   end
