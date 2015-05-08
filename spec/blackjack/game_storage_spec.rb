@@ -34,7 +34,10 @@ describe Blackjack::GameStorage do
     let(:second_game) { Blackjack::GameService.new(deck: deck) }
     let(:games) { [ first_game, second_game ] }
 
-    before { Marshal.dump(games, file.open); file.close }
+    before do
+      games.each(&:deal)
+      Marshal.dump(games, file.open); file.close
+    end
 
     # TODO: to_json for Hand and Deck
     # TODO: eq? for Hand and Deck
@@ -46,6 +49,8 @@ describe Blackjack::GameStorage do
   end
 
   context '#store' do
+    before { game.deal }
+
     it 'stores games in a provided file' do
       storage.store(game)
       expect(storage.first.dealer_hand.cards).to eq(game.dealer_hand.cards)

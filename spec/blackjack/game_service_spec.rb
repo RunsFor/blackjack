@@ -25,17 +25,6 @@ describe Blackjack::GameService do
       expect(game.total_amount).to eq(1000)
     end
 
-    context 'When player gets blackjack' do
-      let(:king) { Blackjack::Card.new(rank: :king) }
-      let(:ace) { Blackjack::Card.new(rank: :ace) }
-      let(:deck) { Blackjack::Deck.new(ace, king, king, king) }
-
-      it 'ends the round' do
-        expect_any_instance_of(Blackjack::GameService).to receive(:end_round)
-        game
-      end
-    end
-
     context 'When options provided' do
       let(:options) { { bet: 100, amount: 2000 } }
 
@@ -54,6 +43,19 @@ describe Blackjack::GameService do
     end
   end
 
+  context '#deal' do
+    context 'When player gets blackjack' do
+      let(:king) { Blackjack::Card.new(rank: :king) }
+      let(:ace) { Blackjack::Card.new(rank: :ace) }
+      let(:deck) { Blackjack::Deck.new(ace, king, king, king) }
+
+      it 'ends the round' do
+        expect_any_instance_of(Blackjack::GameService).to receive(:end_round)
+        game.deal
+      end
+    end
+  end
+
   context '#current_player_hand' do
     let(:five) { Blackjack::Card.new(rank: :'5') }
     let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
@@ -65,7 +67,7 @@ describe Blackjack::GameService do
     end
 
     context 'after splitting and staying' do
-      before { game.split; game.stay }
+      before { game.deal; game.split; game.stay }
 
       it 'points to the second hand' do
         expect(game.current_player_hand).to eq(game.player_hands.last)
@@ -77,6 +79,8 @@ describe Blackjack::GameService do
     let(:five) { Blackjack::Card.new(rank: :'5') }
     let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
     let(:options) { { bet: 100 } }
+
+    before { game.deal }
 
     context 'before splitting' do
       it 'returns bet from players hand' do
@@ -97,6 +101,8 @@ describe Blackjack::GameService do
     let(:five) { Blackjack::Card.new(rank: :'5') }
     let(:available_cards) { [ five ] * 10 }
     let(:deck) { Blackjack::Deck.new(*available_cards) }
+
+    before { game.deal }
 
     # TODO: Sometimes this test failed. Possibly because of blackjack
     it 'provides players hand with one card' do
@@ -174,7 +180,7 @@ describe Blackjack::GameService do
     let(:five) { Blackjack::Card.new(rank: :'5') }
     let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
 
-    before { game.split }
+    before { game.deal; game.split }
 
     context 'when playing with last hand of the player' do
       before { game.stay }
@@ -199,6 +205,8 @@ describe Blackjack::GameService do
     let(:five) { Blackjack::Card.new(rank: :'5') }
     let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
 
+    before { game.deal }
+
     it 'takes cards from deck until points reaches 17 points' do
       expect_any_instance_of(Blackjack::Hand)
         .to receive(:take).exactly(2).times.and_call_original
@@ -207,6 +215,8 @@ describe Blackjack::GameService do
   end
 
   context '#split' do
+    before { game.deal }
+
     context 'when card have the same rank' do
       let(:five) { Blackjack::Card.new(rank: :'5') }
       let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }
@@ -226,6 +236,9 @@ describe Blackjack::GameService do
 
   context '#surrender' do
     let(:options) { { bet: 100 } }
+
+    before { game.deal }
+
     it 'returns half of the bet to the player and ends the round' do
       expect(game).to receive(:end_round)
       expect { game.surrender }.to change { game.total_amount }.by(-50)
@@ -248,7 +261,7 @@ describe Blackjack::GameService do
     let(:nine) { Blackjack::Card.new(rank: :'9') }
     let(:options) { { bet: 100, amount: 1000 } }
 
-    before { game.end_round }
+    before { game.deal; game.end_round }
 
     context 'when dealer wins' do
       let(:deck) { Blackjack::Deck.new(king, nine, king, king) }
