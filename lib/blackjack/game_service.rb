@@ -39,12 +39,7 @@ class Blackjack::GameService
       raise "Can't take more cards"
     end
 
-    cards = deck.get(1)
-    if cards.empty?
-      raise 'No more cards in the deck'
-    else
-      current_player_hand.take *cards
-    end
+    current_player_hand.take *deck.get(1)
 
     if current_player_hand.points >= 21
       stay

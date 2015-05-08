@@ -33,5 +33,18 @@ describe Blackjack::Deck do
     it 'removes cards after they were taken' do
       expect { deck.get(2)}.to change { deck.size }.by(-2)
     end
+
+    context 'when no more cards left' do
+      let(:card) { Blackjack::Card.new }
+      subject(:deck) { described_class.new(card) }
+
+      it 'raises an exception' do
+        expect { deck.get(1); deck.get(1) }.to raise_error
+      end
+
+      it 'raises an exception when asked for 2 cards, but returned less' do
+        expect { deck.get(2) }.to raise_error
+      end
+    end
   end
 end

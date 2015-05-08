@@ -104,17 +104,8 @@ describe Blackjack::GameService do
 
     before { game.deal }
 
-    # TODO: Sometimes this test failed. Possibly because of blackjack
     it 'provides players hand with one card' do
       expect { game.hit }.to change { game.current_player_hand.cards.size }.by(1)
-    end
-
-    context 'When there are no more cards in a deck' do
-      let(:available_cards) { [ five ] * 4 }
-
-      it 'raises an exception' do
-        expect { game.hit }.to raise_error
-      end
     end
 
     context 'When there are more than 20 points in the second hand' do

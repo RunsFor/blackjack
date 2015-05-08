@@ -10,6 +10,11 @@ class Blackjack::Deck
   end
 
   def_delegator :@cards, :size
-  def_delegator :@cards, :shift, :get
+
+  def get(num)
+    cards = @cards.shift(num)
+    raise 'No more cards in the deck' if cards.size != num
+    cards
+  end
 end
 
