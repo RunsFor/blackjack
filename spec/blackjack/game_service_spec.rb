@@ -44,15 +44,33 @@ describe Blackjack::GameService do
   end
 
   context '#deal' do
+    let(:king) { Blackjack::Card.new(rank: :king) }
+    let(:queen) { Blackjack::Card.new(rank: :queen) }
+    let(:ace) { Blackjack::Card.new(rank: :ace) }
+    let(:ten) { Blackjack::Card.new(rank: :'10') }
+    let(:deck) { Blackjack::Deck.new(king, queen, king, ten) }
+
     context 'When player gets blackjack' do
-      let(:king) { Blackjack::Card.new(rank: :king) }
-      let(:ace) { Blackjack::Card.new(rank: :ace) }
-      let(:deck) { Blackjack::Deck.new(ace, king, king, king) }
+      let(:deck) { Blackjack::Deck.new(king, ace, king, queen) }
 
       it 'ends the round' do
         expect_any_instance_of(Blackjack::GameService).to receive(:end_round)
         game.deal
       end
+    end
+
+    context 'When dealer gets blackjack' do
+      let(:deck) { Blackjack::Deck.new(king, king.dup, king.dup, ace.dup) }
+
+      it 'ends the round' do
+        expect_any_instance_of(Blackjack::GameService).to receive(:end_round)
+        game.deal
+      end
+    end
+
+    it 'hides last card of dealers hand' do
+      game.deal
+      expect(game.dealer_hand.cards.map(&:hidden?)).to include(true, false)
     end
   end
 
@@ -99,7 +117,7 @@ describe Blackjack::GameService do
 
   context '#hit' do
     let(:five) { Blackjack::Card.new(rank: :'5') }
-    let(:available_cards) { [ five ] * 10 }
+    let(:available_cards) { (1..10).map { five.dup } }
     let(:deck) { Blackjack::Deck.new(*available_cards) }
 
     before { game.deal }
@@ -255,7 +273,7 @@ describe Blackjack::GameService do
     before { game.deal }
 
     context 'when round ends after some turn' do
-      let(:cards) { (1..3).map { king } + (1..6).map { six } }
+      let(:cards) { (1..3).map { king.dup } + (1..6).map { six.dup } }
       let(:deck) { Blackjack::Deck.new(*cards) }
 
       context 'when dealer busted' do
@@ -281,7 +299,7 @@ describe Blackjack::GameService do
       before { game.end_round }
 
       context 'when dealer wins' do
-        let(:deck) { Blackjack::Deck.new(king, six, king, king) }
+        let(:deck) { Blackjack::Deck.new(king, six, king.dup, king.dup) }
 
         it 'takes money from player' do
           expect(game.results).to include(player: [ :loose ], total_amount: 900)
@@ -290,7 +308,7 @@ describe Blackjack::GameService do
       end
 
       context 'when player wins' do
-        let(:deck) { Blackjack::Deck.new(king, king, king, six) }
+        let(:deck) { Blackjack::Deck.new(king, king.dup, king.dup, six) }
 
         it 'gives money to the player' do
           expect(game.results).to include(player: [ :win ], total_amount: 1100)

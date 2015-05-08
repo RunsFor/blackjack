@@ -68,8 +68,24 @@ describe Blackjack::Hand do
 
     it 'takes a card' do
       expect { hand.take(ace_spades) }
-        .to change { hand.cards.size }.by(1)
-        .and change {hand.points}.by(11)
+        .to change { hand.size }.by(1)
+        .and change { hand.points }.by(11)
+    end
+  end
+
+  context '#reveal' do
+    let(:hidden_ace) { Blackjack::Card.new(rank: :ace, hidden: true) }
+    let(:king) { Blackjack::Card.new(rank: :king) }
+    let(:cards) { [ king, hidden_ace ] }
+
+    it 'reveals all cards' do
+      expect { hand.reveal }
+        .to change { hand.points }
+        .from(10).to(21)
+    end
+
+    it 'returns self' do
+      expect(hand.reveal).to be_a_kind_of(Blackjack::Hand)
     end
   end
 
@@ -87,6 +103,24 @@ describe Blackjack::Hand do
     let(:king) { Blackjack::Card.new(rank: :king) }
     let(:queen) { Blackjack::Card.new(rank: :queen) }
     let(:jack) { Blackjack::Card.new(rank: :jack) }
+    let(:hidden_card) { Blackjack::Card.new(hidden: true) }
+
+    context 'when hidden' do
+      context 'when all cards are hidden' do
+        let(:cards) { [ hidden_card ] }
+
+        it 'returns 0' do
+          expect(hand.points).to eq(0)
+        end
+      end
+      context 'when some of cards are hidden' do
+        let(:cards) { [ jack, hidden_card ] }
+
+        it 'return sum of not hidden cards' do
+          expect(hand.points).to eq(10)
+        end
+      end
+    end
 
     context 'ace and king' do
       let(:cards) { [ ace, king ] }
@@ -118,6 +152,16 @@ describe Blackjack::Hand do
       it '21' do
         expect(hand.points).to eq(21)
       end
+    end
+  end
+
+  context '#blackjack?' do
+    let(:hidden_ace) { Blackjack::Card.new(rank: :ace, hidden: true) }
+    let(:blackjack) { Blackjack::Card.new(rank: :jack, color: :spades) }
+    let(:cards) { [ blackjack, hidden_ace ] }
+
+    it 'ignores hidden cards' do
+      expect(hand).to be_blackjack
     end
   end
 

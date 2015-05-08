@@ -15,9 +15,24 @@ class Blackjack::Card
   end
 
   # TODO: Add #to_s method
-  def initialize(color: nil, rank: nil)
+  def initialize(color: nil, rank: nil, hidden: false)
     @color = color || COLORS.sample
     @rank = rank || RANKS.sample
+    @hidden = hidden
+  end
+
+  def hidden?
+    @hidden
+  end
+
+  def hide
+    @hidden = true
+    self
+  end
+
+  def reveal
+    @hidden = false
+    self
   end
 
   def <=>(card)
@@ -97,6 +112,11 @@ class Blackjack::Card
 
   def spades?
     color ==:spades
+  end
+
+  def to_json
+    result = hidden? ? { color: '***', rank: '***' } : { color: color, rank: rank }
+    result.to_json
   end
 end
 

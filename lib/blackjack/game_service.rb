@@ -18,10 +18,12 @@ class Blackjack::GameService
   def deal
     @hand_number = 1
     @player_hands = [ Blackjack::Hand.new(cards: @deck.get(2), bet: @current_bet) ]
-    @dealer_hand = Blackjack::Hand.new(cards: @deck.get(2))
+    dealer_cards = @deck.get(2)
+    dealer_cards.last.hide
+    @dealer_hand = Blackjack::Hand.new(cards: dealer_cards)
 
     # TODO: What about dealers blackjack insurance?
-    if player_blackjack? || dealer_blackjack?
+    if current_player_hand.blackjack? || dealer_hand.blackjack?
       end_round
     end
   end
@@ -84,12 +86,13 @@ class Blackjack::GameService
   end
 
   def dealers_turn
-    while @dealer_hand.points < 17
+    while @dealer_hand.reveal.points < 17
       @dealer_hand.take *deck.get(1)
     end
   end
 
   def end_round
+    @dealer_hand.reveal
     @player_hands.inject(@results) do |agg, hand|
       if hand.busted?
         agg[:player] << :loose
@@ -114,16 +117,6 @@ class Blackjack::GameService
 
   def round_completed?
     @completed
-  end
-
-  private
-
-  def player_blackjack?
-    current_player_hand.cards.size == 2 && current_player_hand.points == 21
-  end
-
-  def dealer_blackjack?
-    @dealer_hand.cards.size == 2 && @dealer_hand.points == 21
   end
 end
 

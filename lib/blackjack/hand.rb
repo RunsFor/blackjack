@@ -13,11 +13,13 @@ class Blackjack::Hand
   end
 
   def_delegator :@cards, :push, :take
-  def_delegator :@cards, :empty?
+  delegate %i(size empty?) => :@cards
 
   # TODO: Maybe refactor
-  def points
-    @cards.sort.inject(0) do |sum, card|
+  # TODO: Sometimes we need to count hidden points, sometimes not
+  def points(exclude: [ :hidden? ])
+    sorted_cards = exclude.inject(@cards.sort) { |res, meth| res.reject(&meth) }
+    sorted_cards.inject(0) do |sum, card|
       case
       when card.two?
         sum += 2
@@ -43,6 +45,15 @@ class Blackjack::Hand
 
       sum
     end
+  end
+
+  def reveal
+    cards.each(&:reveal)
+    self
+  end
+
+  def blackjack?
+    size == 2 && points(exclude: []) == 21
   end
 
   def splittable?
