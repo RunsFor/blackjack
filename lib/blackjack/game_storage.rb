@@ -17,7 +17,13 @@ class Blackjack::GameStorage
 
   def store(*games)
     if File.exist?(@filename)
-      File.open(@filename, 'w') { |file| file.write(Marshal.dump(games)) }
+      File.open(@filename, 'w') { |file| Marshal.dump(games, file) }
+    end
+  end
+
+  def delete_all
+    if File.exist?(@filename)
+      File.open(@filename, 'w') { |file| Marshal.dump([], file) }
     end
   end
 end

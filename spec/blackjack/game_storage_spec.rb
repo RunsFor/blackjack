@@ -58,4 +58,12 @@ describe Blackjack::GameStorage do
         .to eq(game.player_hands.map(&:cards).flatten)
     end
   end
+
+  context '#delete_all' do
+    before { storage.store(game) }
+
+    it 'deletes all games from the file' do
+      expect { storage.delete_all }.to change { storage.all.size }.from(1).to(0)
+    end
+  end
 end
