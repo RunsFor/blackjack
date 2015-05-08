@@ -120,4 +120,16 @@ describe Blackjack::Hand do
       end
     end
   end
+
+  context '#busted?' do
+    context 'When 21 < points' do
+      before { expect(hand).to receive(:points) { 22 } }
+      it { is_expected.to be_busted }
+    end
+
+    context 'When points <= 21' do
+      before { expect(hand).to receive(:points) { 21 } }
+      it { is_expected.to_not be_busted }
+    end
+  end
 end

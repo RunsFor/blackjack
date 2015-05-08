@@ -249,35 +249,62 @@ describe Blackjack::GameService do
 
   context '#end_round' do
     let(:king) { Blackjack::Card.new(rank: :king) }
-    let(:nine) { Blackjack::Card.new(rank: :'9') }
+    let(:six) { Blackjack::Card.new(rank: :'6') }
     let(:options) { { bet: 100, amount: 1000 } }
 
-    before { game.deal; game.end_round }
+    before { game.deal }
 
-    context 'when dealer wins' do
-      let(:deck) { Blackjack::Deck.new(king, nine, king, king) }
+    context 'when round ends after some turn' do
+      let(:cards) { (1..3).map { king } + (1..6).map { six } }
+      let(:deck) { Blackjack::Deck.new(*cards) }
 
-      it 'takes money from player' do
-        expect(game.results).to include(player: [ :loose ], total_amount: 900)
-        expect(game).to be_round_completed
+      context 'when dealer busted' do
+        before { game.stay }
+
+        it 'gives money to the player' do
+          expect(game.results).to include(player: [ :win ], total_amount: 1100)
+          expect(game).to be_round_completed
+        end
+      end
+
+      context 'when player busted' do
+        before { game.hit }
+
+        it 'takes money from player' do
+          expect(game.results).to include(player: [ :loose ], total_amount: 900)
+          expect(game).to be_round_completed
+        end
       end
     end
 
-    context 'when player wins' do
-      let(:deck) { Blackjack::Deck.new(king, king, king, nine) }
+    context 'when round ends after dealing' do
+      before { game.end_round }
 
-      it 'gives money to the player' do
-        expect(game.results).to include(player: [ :win ], total_amount: 1100)
-        expect(game).to be_round_completed
+      context 'when dealer wins' do
+        let(:deck) { Blackjack::Deck.new(king, six, king, king) }
+
+        it 'takes money from player' do
+          expect(game.results).to include(player: [ :loose ], total_amount: 900)
+          expect(game).to be_round_completed
+        end
       end
-    end
 
-    context 'dealers and players score are equal' do
-      let(:deck) { Blackjack::Deck.new(king, king, king, king) }
+      context 'when player wins' do
+        let(:deck) { Blackjack::Deck.new(king, king, king, six) }
 
-      it 'gives money to the player' do
-        expect(game.results).to include(player: [ :draw ], total_amount: 1000)
-        expect(game).to be_round_completed
+        it 'gives money to the player' do
+          expect(game.results).to include(player: [ :win ], total_amount: 1100)
+          expect(game).to be_round_completed
+        end
+      end
+
+      context 'dealers and players score are equal' do
+        let(:deck) { Blackjack::Deck.new(king, king, king, king) }
+
+        it 'gives money to the player' do
+          expect(game.results).to include(player: [ :draw ], total_amount: 1000)
+          expect(game).to be_round_completed
+        end
       end
     end
   end

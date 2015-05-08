@@ -48,4 +48,8 @@ class Blackjack::Hand
   def splittable?
     cards.size == 2 && cards.first.rank == cards.last.rank
   end
+
+  def busted?
+    points > 21 ? true : false
+  end
 end

@@ -91,12 +91,18 @@ class Blackjack::GameService
 
   def end_round
     @player_hands.inject(@results) do |agg, hand|
-      if hand.points > @dealer_hand.points
+      if hand.busted?
+        agg[:player] << :loose
+        agg[:total_amount] -= @current_bet
+      elsif @dealer_hand.busted?
         agg[:player] << :win
         agg[:total_amount] += @current_bet
       elsif hand.points < @dealer_hand.points
         agg[:player] << :loose
         agg[:total_amount] -= @current_bet
+      elsif hand.points > @dealer_hand.points
+        agg[:player] << :win
+        agg[:total_amount] += @current_bet
       else
         agg[:player] << :draw
       end
