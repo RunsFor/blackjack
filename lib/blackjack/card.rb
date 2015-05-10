@@ -114,6 +114,22 @@ class Blackjack::Card
     color ==:spades
   end
 
+  def points
+      case
+      when two? then 2
+      when three? then 3
+      when four? then 4
+      when five? then 5
+      when six? then 6
+      when seven? then 7
+      when eight? then 8
+      when nine? then 9
+      when king?, queen?, jack?, ten? then 10
+      when ace? then 11
+      else 0
+      end
+  end
+
   def to_json
     result = hidden? ? { color: '***', rank: '***' } : { color: color, rank: rank }
     result.to_json

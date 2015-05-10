@@ -1,7 +1,18 @@
 require 'spec_helper'
 
+
+RSpec.shared_examples "card_with_points" do |rank, points|
+  let(:rank) { rank }
+
+  it "#{rank} maps to #{points} points" do
+    expect(card.points).to eq(points)
+  end
+end
+
 describe Blackjack::Card do
-  subject(:card) { describe.new }
+  subject(:card) { described_class.new(rank: rank, color: color) }
+  let(:rank) { Blackjack::Card::RANKS.sample }
+  let(:color) { Blackjack::Card::COLORS.sample }
 
   context '.[]' do
     it 'returns card by its index' do
@@ -54,6 +65,23 @@ describe Blackjack::Card do
       expect(card1).to_not eq(card2)
       expect(card2).to_not eq(card3)
     end
+  end
+
+  context '#points' do
+    it_should_behave_like 'card_with_points', :'2', 2
+    it_should_behave_like 'card_with_points', :'3', 3
+    it_should_behave_like 'card_with_points', :'4', 4
+    it_should_behave_like 'card_with_points', :'5', 5
+    it_should_behave_like 'card_with_points', :'6', 6
+    it_should_behave_like 'card_with_points', :'7', 7
+    it_should_behave_like 'card_with_points', :'8', 8
+    it_should_behave_like 'card_with_points', :'9', 9
+    it_should_behave_like 'card_with_points', :'10', 10
+    it_should_behave_like 'card_with_points', :jack, 10
+    it_should_behave_like 'card_with_points', :queen, 10
+    it_should_behave_like 'card_with_points', :king, 10
+    it_should_behave_like 'card_with_points', :ace, 11
+    it_should_behave_like 'card_with_points', :unknown, 0
   end
 
   context '#to_json' do

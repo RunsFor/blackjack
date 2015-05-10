@@ -15,43 +15,17 @@ class Blackjack::Hand
   def_delegator :@cards, :push, :take
   delegate %i(size empty?) => :@cards
 
-  # TODO: Maybe refactor
-  # TODO: Sometimes we need to count hidden points, sometimes not
   def points(exclude: [ :hidden? ])
-    aces = 0
-    sorted_cards = exclude.inject(@cards.sort) { |res, meth| res.reject(&meth) }
-    sorted_cards.inject(0) do |sum, card|
-      case
-      when card.two?
-        sum += 2
-      when card.three?
-        sum += 3
-      when card.four?
-        sum += 4
-      when card.five?
-        sum += 5
-      when card.six?
-        sum += 6
-      when card.seven?
-        sum += 7
-      when card.eight?
-        sum += 8
-      when card.nine?
-        sum += 9
-      when card.king?, card.queen?, card.jack?, card.ten?
-        sum += 10
-      when card.ace?
-        aces += 1
-        sum += 11
-      end
+    cards = exclude.inject(@cards.sort) { |res, meth| res.reject(&meth) }
+    sum = cards.map(&:points).reduce(&:+) || 0
+    aces = cards.select(&:ace?).size
 
-      while (sum > 21 && aces > 0) do
-        sum -= 10
-        aces -= 1
-      end
-
-      sum
+    while (sum > 21 && aces > 0) do
+      aces -= 1
+      sum -= 10
     end
+
+    sum
   end
 
   def reveal
