@@ -30,8 +30,8 @@ class Blackjack::GameService
 
   def results
     @results.merge({
-      player_points: current_player_hand.points,
-      player_cards: current_player_hand.to_s,
+      player_points: @player_hands.map(&:points),
+      player_cards: @player_hands.map(&:to_s),
       dealer_points: dealer_hand.points,
       dealer_cards: dealer_hand.to_s,
     })
@@ -59,6 +59,7 @@ class Blackjack::GameService
 
   def split
     if current_player_hand.splittable?
+      # TODO: What if there is no money for the second bet?
       bet = current_player_hand.bet
       @player_hands = [
         Blackjack::Hand.new(cards: [ current_player_hand.cards.first ], bet: bet),
@@ -123,6 +124,10 @@ class Blackjack::GameService
     end
 
     @results[:completed] = true
+  end
+
+  def splitted?
+    @player_hands.size == 2 ? true : false
   end
 
   def round_completed?

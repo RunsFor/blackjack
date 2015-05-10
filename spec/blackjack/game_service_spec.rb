@@ -265,6 +265,25 @@ describe Blackjack::GameService do
     end
   end
 
+  context '#splitted?' do
+    let(:ace) { Blackjack::Card.new(rank: :ace) }
+    let(:deck) { Blackjack::Deck.new(*(1..4).map { ace.dup }) }
+
+    context 'when splitted' do
+      before { game.deal; game.split }
+      it { is_expected.to be_splitted }
+    end
+
+    context 'when not splitted' do
+      before { game.deal }
+      it { is_expected.to_not be_splitted }
+    end
+
+    context 'before deal' do
+      it { is_expected.to_not be_splitted }
+    end
+  end
+
   context '#end_round' do
     let(:king) { Blackjack::Card.new(rank: :king) }
     let(:six) { Blackjack::Card.new(rank: :'6') }
