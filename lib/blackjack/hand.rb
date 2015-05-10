@@ -44,4 +44,12 @@ class Blackjack::Hand
   def busted?
     points > 21 ? true : false
   end
+
+  def to_s
+    cards.map(&:to_s)
+  end
+
+  def to_json(*args)
+    cards.to_json(*args)
+  end
 end

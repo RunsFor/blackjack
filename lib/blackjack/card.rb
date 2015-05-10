@@ -130,9 +130,13 @@ class Blackjack::Card
       end
   end
 
-  def to_json
+  def to_s
+    result = hidden? ? "***" : "#{rank}_of_#{color}"
+  end
+
+  def to_json(*args)
     result = hidden? ? { color: '***', rank: '***' } : { color: color, rank: rank }
-    result.to_json
+    result.to_json(*args)
   end
 end
 
