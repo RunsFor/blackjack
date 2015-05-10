@@ -210,6 +210,39 @@ describe Blackjack::GameService do
     end
   end
 
+  context '#double' do
+    let(:jack) { Blackjack::Card.new(rank: :jack) }
+    let(:deck) { Blackjack::Deck.new(*(1..5).map { jack.dup } ) }
+    let(:options) { { bet: 100 } }
+
+    before { game.deal }
+
+    it 'doubles current bet' do
+      expect { game.double }
+        .to change { game.current_bet }
+        .from(100).to(200)
+    end
+
+    it 'doubles current_bet and calls hit and stay' do
+      expect(game).to receive(:hit).once
+      expect(game).to receive(:stay).once
+      game.double
+    end
+
+    context 'when splitted' do
+      let(:ace) { Blackjack::Card.new(rank: :ace) }
+      let(:deck) { Blackjack::Deck.new(ace, ace.dup, jack, jack.dup, jack.dup) }
+
+      before { game.split }
+
+      it 'doubles only on current hand' do
+        expect { game.double }
+          .to change { game.current_bet }
+          .from(200).to(300)
+      end
+    end
+  end
+
   context '#dealers_turn' do
     let(:five) { Blackjack::Card.new(rank: :'5') }
     let(:deck) { Blackjack::Deck.new(five, five, five, five, five, five) }

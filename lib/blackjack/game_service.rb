@@ -81,7 +81,7 @@ class Blackjack::GameService
 
   def double
     raise "Can't take more cards" if current_player_hand.points >= 21
-    @current_bet *= 2
+    current_player_hand.bet *= 2
     hit
     stay
   end
@@ -90,7 +90,7 @@ class Blackjack::GameService
     if @player_hands.size > 1
       raise 'You cannot surrender after splitting'
     else
-      @total_amount -= @current_bet / 2
+      @total_amount -= current_bet / 2
       end_round
     end
   end
@@ -106,16 +106,16 @@ class Blackjack::GameService
     @player_hands.inject(@results) do |agg, hand|
       if hand.busted?
         agg[:player] << :loose
-        @total_amount -= @current_bet
+        @total_amount -= current_bet
       elsif @dealer_hand.busted?
         agg[:player] << :win
-        @total_amount += @current_bet
+        @total_amount += current_bet
       elsif hand.points < @dealer_hand.points
         agg[:player] << :loose
-        @total_amount -= @current_bet
+        @total_amount -= current_bet
       elsif hand.points > @dealer_hand.points
         agg[:player] << :win
-        @total_amount += @current_bet
+        @total_amount += current_bet
       else
         agg[:player] << :draw
       end
