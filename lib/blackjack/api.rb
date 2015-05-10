@@ -89,7 +89,12 @@ class Blackjack::Api < Sinatra::Base
     game.results.to_json
   end
 
-  get '/surrender.json' do
+  post '/surrender.json' do
     content_type :json
+
+    game.surrender
+    storage.store(game)
+
+    game.results.to_json
   end
 end

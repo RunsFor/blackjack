@@ -277,13 +277,20 @@ describe Blackjack::GameService do
   end
 
   context '#surrender' do
+    let(:ace) { Blackjack::Card.new(rank: :ace) }
+    let(:deck) { Blackjack::Deck.new(*(1..4).map { ace.dup }) }
     let(:options) { { bet: 100 } }
 
     before { game.deal }
 
     it 'returns half of the bet to the player and ends the round' do
-      expect(game).to receive(:end_round)
+      expect(game).to_not receive(:end_round)
       expect { game.surrender }.to change { game.total_amount }.by(-50)
+    end
+
+    it 'sets player status to surrender' do
+      game.surrender
+      expect(game.results).to include(player: [ :surrender ])
     end
 
     context 'when there is more than 1 hand' do

@@ -87,11 +87,12 @@ class Blackjack::GameService
   end
 
   def surrender
-    if @player_hands.size > 1
+    if @player_hands.size > 1 || current_player_hand.size > 2
       raise 'You cannot surrender after splitting'
     else
+      @results[:player] << :surrender
       @total_amount -= current_bet / 2
-      end_round
+      @results[:total_amount] = @total_amount
     end
   end
 
