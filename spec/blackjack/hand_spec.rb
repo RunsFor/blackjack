@@ -138,6 +138,14 @@ describe Blackjack::Hand do
       end
     end
 
+    context 'with king and two aces' do
+      let(:cards) { [ king, ace, ace ] }
+
+      it '12' do
+        expect(hand.points).to eq(12)
+      end
+    end
+
     context 'two, three, four, five and six' do
       let(:cards) { [ two, three, four, five, six ] }
 

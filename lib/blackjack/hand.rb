@@ -18,6 +18,7 @@ class Blackjack::Hand
   # TODO: Maybe refactor
   # TODO: Sometimes we need to count hidden points, sometimes not
   def points(exclude: [ :hidden? ])
+    aces = 0
     sorted_cards = exclude.inject(@cards.sort) { |res, meth| res.reject(&meth) }
     sorted_cards.inject(0) do |sum, card|
       case
@@ -40,7 +41,13 @@ class Blackjack::Hand
       when card.king?, card.queen?, card.jack?, card.ten?
         sum += 10
       when card.ace?
-        sum += sum > 10 ? 1 : 11
+        aces += 1
+        sum += 11
+      end
+
+      while (sum > 21 && aces > 0) do
+        sum -= 10
+        aces -= 1
       end
 
       sum

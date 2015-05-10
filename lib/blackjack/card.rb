@@ -36,7 +36,7 @@ class Blackjack::Card
   end
 
   def <=>(card)
-    Blackjack::Card::RANKS.index(card.rank) <=> Blackjack::Card::RANKS.index(rank)
+    RANKS.index(card.rank) <=> RANKS.index(self.rank)
   end
 
   def ==(card)
