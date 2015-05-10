@@ -1,39 +1,85 @@
+require 'json'
 require 'sinatra'
 
 class Blackjack::Api < Sinatra::Base
+  attr_reader :filename, :storage, :game
+
+  def initialize
+    @filename = 'blackjack.txt'
+    @storage = Blackjack::GameStorage.new(@filename)
+
+    super
+  end
+
+  before do
+    if request.path =~ /(round|hit|stay|double|split|surrender)/
+      @game = storage.first
+      unless @game.is_a?(Blackjack::GameService)
+        raise "There are no active games right now!"
+      end
+    end
+  end
+
   get '/status.json' do
     content_type :json
     { status: :ok, message: nil }.to_json
   end
 
-  post '/game' do
-    # Create a deck
-    # If game already created, override
+  # TODO: Set bet and total amount
+  post '/game.json' do
+    content_type :json
+    deck = Blackjack::Deck.new
+    game = Blackjack::GameService.new(deck: deck)
+    storage.store(game)
+    { status: 'ok' }.to_json
   end
 
-  delete '/game' do
-    # Deletes a deck
+  delete '/game.json' do
+    content_type :json
+    storage.delete_all
+    { status: 'ok' }.to_json
   end
 
-  post '/round' do
-    # Use created deck,
-    # create player and dealer hands
-    # Refuse if round is in progress
-    # response with hands and game
+  # TODO: Set bet and total amount
+  post '/round.json' do
+    content_type :json
+
+    game.deal
+
+    storage.store(game)
+
+    game.results.to_json
   end
 
-  get '/hit/:id.json' do
+  post '/hit.json' do
+    content_type :json
+
+    game.hit
+
+    storage.store(game)
+
+    game.results.to_json
   end
 
-  get '/stay/:id.json' do
+  post '/stay.json' do
+    content_type :json
+
+    game.stay
+
+    storage.store(game)
+
+    game.results.to_json
   end
 
-  get '/double/:id.json' do
+  post '/double.json' do
+    content_type :json
   end
 
-  get '/split/:id.json' do
+  post '/split.json' do
+    content_type :json
   end
 
-  get '/surrender/:id.json' do
+  get '/surrender.json' do
+    content_type :json
   end
 end

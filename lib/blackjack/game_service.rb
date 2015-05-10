@@ -1,21 +1,21 @@
 class Blackjack::GameService
   attr_reader :dealer_hand, :player_hands, :deck,
-    :total_amount, :hand_number, :results
+    :total_amount, :hand_number
 
   def initialize(deck: nil, options: {})
     @current_bet = options[:bet] || 50
     @total_amount = options[:amount] || 1000
     raise "Bet cannot be more than total amount" if @current_bet > @total_amount
 
-    @results = { player: [], total_amount: @total_amount }
-    @completed = false
-    @deck = deck || Blackjack::Deck.new
+    @results = { player: [], total_amount: @total_amount, completed: false }
     @hand_number = 0
+    @deck = deck || Blackjack::Deck.new
     @player_hands = [  ]
     @dealer_hand =  nil
   end
 
   def deal
+    @results = { player: [], total_amount: @total_amount, completed: false }
     @hand_number = 1
     @player_hands = [ Blackjack::Hand.new(cards: @deck.get(2), bet: @current_bet) ]
     dealer_cards = @deck.get(2)
@@ -26,6 +26,15 @@ class Blackjack::GameService
     if current_player_hand.blackjack? || dealer_hand.blackjack?
       end_round
     end
+  end
+
+  def results
+    @results.merge({
+      player_points: current_player_hand.points,
+      player_cards: current_player_hand.to_s,
+      dealer_points: dealer_hand.points,
+      dealer_cards: dealer_hand.to_s,
+    })
   end
 
   def current_player_hand
@@ -96,27 +105,28 @@ class Blackjack::GameService
     @player_hands.inject(@results) do |agg, hand|
       if hand.busted?
         agg[:player] << :loose
-        agg[:total_amount] -= @current_bet
+        @total_amount -= @current_bet
       elsif @dealer_hand.busted?
         agg[:player] << :win
-        agg[:total_amount] += @current_bet
+        @total_amount += @current_bet
       elsif hand.points < @dealer_hand.points
         agg[:player] << :loose
-        agg[:total_amount] -= @current_bet
+        @total_amount -= @current_bet
       elsif hand.points > @dealer_hand.points
         agg[:player] << :win
-        agg[:total_amount] += @current_bet
+        @total_amount += @current_bet
       else
         agg[:player] << :draw
       end
+      agg[:total_amount] = @total_amount
       agg
     end
 
-    @completed = true
+    @results[:completed] = true
   end
 
   def round_completed?
-    @completed
+    @results[:completed]
   end
 end
 
