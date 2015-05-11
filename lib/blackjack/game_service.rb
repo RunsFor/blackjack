@@ -52,6 +52,7 @@ class Blackjack::GameService
 
     current_player_hand.take *deck.get(1)
 
+    # TODO: Maybe extract this logic from hit
     if current_player_hand.points >= 21
       stay
     end
@@ -83,7 +84,7 @@ class Blackjack::GameService
     raise "Can't take more cards" if current_player_hand.points >= 21
     current_player_hand.bet *= 2
     hit
-    stay
+    stay unless round_completed?
   end
 
   def surrender

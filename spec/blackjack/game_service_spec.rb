@@ -229,6 +229,18 @@ describe Blackjack::GameService do
       game.double
     end
 
+    context 'when bug' do
+      let(:five) { Blackjack::Card.new(rank: :'5') }
+      let(:six) { Blackjack::Card.new(rank: :'6') }
+      let(:deck) { Blackjack::Deck.new(five, six, five.dup, jack.dup, jack.dup, jack.dup) }
+      let(:options) { { bet: 50, total_amount: 1000 } }
+
+      it 'wins 100 money' do
+        game.double
+        expect(game.results).to include(total_amount: 1100)
+      end
+    end
+
     context 'when splitted' do
       let(:ace) { Blackjack::Card.new(rank: :ace) }
       let(:deck) { Blackjack::Deck.new(ace, ace.dup, jack, jack.dup, jack.dup) }
