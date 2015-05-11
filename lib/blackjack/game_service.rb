@@ -94,6 +94,7 @@ class Blackjack::GameService
       @results[:player] << :surrender
       @total_amount -= current_bet / 2
       @results[:total_amount] = @total_amount
+      @results[:completed] = true
     end
   end
 
