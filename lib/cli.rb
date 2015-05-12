@@ -4,8 +4,17 @@ require 'highline/import'
 require 'pry'
 require 'awesome_print'
 
-HOST = "localhost"
-PORT = "9292"
+# NOTE: --host=localhost --port=9292
+def parse_args(options = [])
+  options.inject({}) do |args, opt|
+    key, value = opt.split('=')
+    args[key] = value
+    args
+  end
+end
+
+HOST = parse_args(ARGV)['--host'] || 'localhost'
+PORT = parse_args(ARGV)['--port'] || '9292'
 URL = "http://#{HOST}:#{PORT}/"
 
 def start_game
