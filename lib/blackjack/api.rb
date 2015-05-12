@@ -2,6 +2,8 @@ require 'json'
 require 'sinatra'
 
 class Blackjack::Api < Sinatra::Base
+  AUTH_ACTIONS = %w(round hit stay double split surrender)
+
   attr_reader :filename, :storage, :game
 
   def initialize
@@ -12,22 +14,33 @@ class Blackjack::Api < Sinatra::Base
   end
 
   before do
-    if request.path =~ /(round|hit|stay|double|split|surrender)/
+    content_type :json
+
+    matchdata = /(?<action>#{AUTH_ACTIONS.join('|')})/.match(request.path)
+    action = matchdata && matchdata[:action]
+    if AUTH_ACTIONS.include?(action)
       @game = storage.first
-      unless @game.is_a?(Blackjack::GameService)
-        raise "There are no active games right now!"
-      end
+      @auth = Blackjack::AuthService.new(@game)
+      halt 403 unless @auth.can?(action)
     end
   end
 
   get '/status.json' do
     content_type :json
-    { status: :ok, message: nil }.to_json
+    game = storage.first
+
+    auth = game && Blackjack::AuthService.new(game)
+    authorized_actions = auth && auth.rights.select{ |_,v| v }.keys
+
+    response = { status: :ok, message: nil }
+    response[:games_available] = storage.all.size
+    response[:available_actions] = [ :status, :game]
+    response[:available_actions].push(*authorized_actions)
+    response.to_json
   end
 
   # TODO: Set bet and total amount
   post '/game.json' do
-    content_type :json
     deck = Blackjack::Deck.new
     game = Blackjack::GameService.new(deck: deck)
     storage.store(game)
@@ -35,15 +48,12 @@ class Blackjack::Api < Sinatra::Base
   end
 
   delete '/game.json' do
-    content_type :json
     storage.delete_all
     { status: 'ok' }.to_json
   end
 
   # TODO: Set bet and total amount
   post '/round.json' do
-    content_type :json
-
     game.deal
 
     storage.store(game)
@@ -52,8 +62,6 @@ class Blackjack::Api < Sinatra::Base
   end
 
   post '/hit.json' do
-    content_type :json
-
     game.hit
 
     storage.store(game)
@@ -62,8 +70,6 @@ class Blackjack::Api < Sinatra::Base
   end
 
   post '/stay.json' do
-    content_type :json
-
     game.stay
 
     storage.store(game)
@@ -72,8 +78,6 @@ class Blackjack::Api < Sinatra::Base
   end
 
   post '/double.json' do
-    content_type :json
-
     game.double
     storage.store(game)
 
@@ -81,8 +85,6 @@ class Blackjack::Api < Sinatra::Base
   end
 
   post '/split.json' do
-    content_type :json
-
     game.split
     storage.store(game)
 
@@ -90,8 +92,6 @@ class Blackjack::Api < Sinatra::Base
   end
 
   post '/surrender.json' do
-    content_type :json
-
     game.surrender
     storage.store(game)
 

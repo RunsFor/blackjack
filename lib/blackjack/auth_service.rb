@@ -3,8 +3,6 @@ class Blackjack::AuthService
   NoMoreCardsInADeck = Class.new(StandardError)
 
   DEFAULT_RIGHTS = {
-    status: true,
-    game: true,
     round: false,
     hit: false,
     stay: false,
@@ -19,21 +17,22 @@ class Blackjack::AuthService
     @game = game
     @rights = DEFAULT_RIGHTS.dup || {}
 
-    raise NoGameProvided.new if game.nil?
-    raise NoMoreCardsInADeck.new if game.deck.cards.empty?
+    raise NoGameProvided if game.nil?
+    raise NoMoreCardsInADeck if game.deck.cards.empty?
 
     if game.round_completed?
       can :round
     else
       can :hit
       can :stay
-      can :split if game.splittable?
-      can :surrender if game.surrendable?
+      can :split if game.first_round? && game.current_player_hand.splittable?
+      can :surrender if game.first_round?
+      can :double if game.first_round?
     end
   end
 
   def can?(action)
-    @rights[action]
+    @rights[action.to_sym]
   end
 
   private

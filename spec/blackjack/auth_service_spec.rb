@@ -28,8 +28,6 @@ describe Blackjack::AuthService do
 
     it 'allows :round, :game, :status' do
       expect(auth.can?(:round)).to eq(true)
-      expect(auth.can?(:game)).to eq(true)
-      expect(auth.can?(:status)).to eq(true)
     end
 
     it 'rejects :hit, :stay, :split, :surrender' do
@@ -46,8 +44,6 @@ describe Blackjack::AuthService do
     it 'allows :hit, :stay, :game, :status' do
       expect(auth.can?(:hit)).to eq(true)
       expect(auth.can?(:stay)).to eq(true)
-      expect(auth.can?(:game)).to eq(true)
-      expect(auth.can?(:status)).to eq(true)
     end
 
     it 'rejects :round, :split' do
@@ -59,8 +55,9 @@ describe Blackjack::AuthService do
     context 'when it is a first round' do
       before { game.deal }
 
-      it 'allows :surrender' do
+      it 'allows :surrender, :double' do
         expect(auth.can?(:surrender)).to eq(true)
+        expect(auth.can?(:double)).to eq(true)
       end
 
       context 'when two same cards in a deck' do

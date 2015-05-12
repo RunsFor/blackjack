@@ -133,11 +133,7 @@ class Blackjack::GameService
     @player_hands.size == 2 ? true : false
   end
 
-  def splittable?
-    @player_hands.size == 1 && current_player_hand.splittable?
-  end
-
-  def surrendable?
+  def first_round?
     @player_hands.size == 1 && current_player_hand.size == 2
   end
 
