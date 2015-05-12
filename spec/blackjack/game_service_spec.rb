@@ -17,8 +17,8 @@ describe Blackjack::GameService do
     let(:ace) { Blackjack::Card.new(rank: :ace) }
     let(:cards) { [ ace, ace, ace, ace ] }
 
-    it 'marks the game as incompleted' do
-      expect(game).to_not be_round_completed
+    it 'marks the game(before deal) as completed' do
+      expect(game).to be_round_completed
     end
 
     it 'bet is 50, total amount is 1000' do

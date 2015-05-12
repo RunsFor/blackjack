@@ -7,7 +7,7 @@ class Blackjack::GameService
     @total_amount = options[:amount] || 1000
     raise "Bet cannot be more than total amount" if @current_bet > @total_amount
 
-    @results = { player: [], total_amount: @total_amount, completed: false }
+    @results = { player: [], total_amount: @total_amount, completed: true }
     @hand_number = 0
     @deck = deck || Blackjack::Deck.new
     @player_hands = [  ]
@@ -131,6 +131,14 @@ class Blackjack::GameService
 
   def splitted?
     @player_hands.size == 2 ? true : false
+  end
+
+  def splittable?
+    @player_hands.size == 1 && current_player_hand.splittable?
+  end
+
+  def surrendable?
+    @player_hands.size == 1 && current_player_hand.size == 2
   end
 
   def round_completed?
