@@ -5,5 +5,6 @@ gem "pry"
 gem "pry-byebug"
 gem "thin"
 gem "sinatra"
-gem "rack-test"
+gem "highline"
+gem "rest-client"
 
