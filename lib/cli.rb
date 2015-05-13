@@ -69,6 +69,8 @@ end
 def request(method, action, options = {})
   params = { params: options, content_type: :json, accept: :json }
   RestClient.send(method, URL + "#{action}.json", params)
+rescue => err
+  err.response.body
 end
 
 def parse_json(result)

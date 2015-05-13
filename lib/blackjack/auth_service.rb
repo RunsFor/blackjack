@@ -1,6 +1,15 @@
 class Blackjack::AuthService
-  NoGameProvided = Class.new(StandardError)
-  NoMoreCardsInADeck = Class.new(StandardError)
+  class NoGameProvided < StandardError
+    def initialize
+      super 'No game found'
+    end
+  end
+
+  class NoMoreCardsInADeck < StandardError
+    def initialize
+      super 'No more cards left in the deck'
+    end
+  end
 
   DEFAULT_RIGHTS = {
     round: false,

@@ -1,5 +1,7 @@
 require 'json'
 require 'sinatra'
+require 'blackjack/auth_service'
+require 'pry'
 
 class Blackjack::Api < Sinatra::Base
   AUTH_ACTIONS = %w(round hit stay double split surrender)
@@ -20,8 +22,17 @@ class Blackjack::Api < Sinatra::Base
     action = matchdata && matchdata[:action]
     if AUTH_ACTIONS.include?(action)
       @game = storage.first
-      @auth = Blackjack::AuthService.new(@game)
-      halt 403 unless @auth.can?(action)
+      @auth = begin
+                Blackjack::AuthService.new(@game)
+              rescue => err
+                halt 404, { status: :fail, message: err.message }.to_json
+              end
+      unless @auth.can?(action)
+        halt 403, {
+          status: :fail,
+          message: 'Method forbidden. Ask :status for available actions',
+        }.to_json
+      end
     end
   end
 
@@ -29,10 +40,16 @@ class Blackjack::Api < Sinatra::Base
     content_type :json
     game = storage.first
 
-    auth = game && Blackjack::AuthService.new(game)
+    response = { status: :ok, message: nil }
+
+    auth = begin
+             Blackjack::AuthService.new(game)
+           rescue => err
+             response[:message] = err.message
+             nil
+           end
     authorized_actions = auth && auth.rights.select{ |_,v| v }.keys
 
-    response = { status: :ok, message: nil }
     response[:games_available] = storage.all.size
     response[:available_actions] = [ :status, :game]
     response[:available_actions].push(*authorized_actions)
@@ -77,6 +94,7 @@ class Blackjack::Api < Sinatra::Base
     game.results.to_json
   end
 
+  # TODO: Why forbidden after split?
   post '/double.json' do
     game.double
     storage.store(game)
