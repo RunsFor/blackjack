@@ -5,6 +5,12 @@ class Blackjack::GameService
     end
   end
 
+  class NotEnoughMoney < StandardError
+    def initialize
+      super 'You have no enough money to bet for this round'
+    end
+  end
+
   attr_reader :dealer_hand, :player_hands, :deck,
     :total_amount, :hand_number
 
@@ -21,10 +27,9 @@ class Blackjack::GameService
     @dealer_hand =  Blackjack::Hand::Nil.new
   end
 
-  # TODO: What if money not enough?
   def deal(bet: nil)
     @current_bet = bet || @current_bet
-    raise InvalidBet if @current_bet > @total_amount
+    raise NotEnoughMoney if @current_bet > @total_amount
 
     @results = { player: [], total_amount: @total_amount, completed: false }
     @hand_number = 1
@@ -34,6 +39,7 @@ class Blackjack::GameService
     @dealer_hand = Blackjack::Hand.new(cards: dealer_cards)
 
     # TODO: What about dealers blackjack insurance?
+    # TODO: Pay 3/2 when player gets blackjack
     if current_player_hand.blackjack? || dealer_hand.blackjack?
       end_round
     end
@@ -103,6 +109,8 @@ class Blackjack::GameService
 
   def double
     raise "Can't take more cards" if current_player_hand.points >= 21
+    raise NotEnoughMoney if current_player_hand.bet * 2 > total_amount
+
     current_player_hand.bet *= 2
     hit
     stay unless round_completed?

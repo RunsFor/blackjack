@@ -280,7 +280,15 @@ describe Blackjack::GameService do
       game.double
     end
 
-    context 'when bug' do
+    context 'when no money to raise bet' do
+      let(:options) { { bet: 1000 } }
+
+      it 'raises_error' do
+        expect { game.double }.to raise_error(Blackjack::GameService::NotEnoughMoney)
+      end
+    end
+
+    context 'round completed after hit' do
       let(:five) { Blackjack::Card.new(rank: :'5') }
       let(:six) { Blackjack::Card.new(rank: :'6') }
       let(:cards) { [ five, six, five.dup, jack.dup, jack.dup, jack.dup ] }
