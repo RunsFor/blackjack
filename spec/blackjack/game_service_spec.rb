@@ -69,6 +69,15 @@ describe Blackjack::GameService do
       end
     end
 
+    context 'When only one card available before deal' do
+      let(:cards) { [ king ] }
+
+      it 'sets :draw status and complete round' do
+        game.deal
+        expect(game.results).to include(player: [ :draw ], completed: true)
+      end
+    end
+
     it 'hides last card of dealers hand' do
       game.deal
       expect(game.dealer_hand.cards.map(&:hidden?)).to include(true, false)
@@ -124,6 +133,15 @@ describe Blackjack::GameService do
 
     it 'provides players hand with one card' do
       expect { game.hit }.to change { game.current_player_hand.cards.size }.by(1)
+    end
+
+    context 'When no more cards left' do
+      let(:cards) { (1..4).map { five.dup } }
+
+      it 'sets :draw status and complete round' do
+        game.hit
+        expect(game.results).to include(player: [ :draw ], completed: true)
+      end
     end
 
     context 'When there are more than 20 points in the second hand' do

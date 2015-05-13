@@ -1,6 +1,12 @@
 require 'forwardable'
 
 class Blackjack::Deck
+  class NoMoreCards < StandardError
+    def initialize
+      super 'No more cards in a deck'
+    end
+  end
+
   extend Forwardable
 
   attr_reader :cards
@@ -13,7 +19,7 @@ class Blackjack::Deck
 
   def get(num)
     cards = @cards.shift(num)
-    raise 'No more cards in the deck' if cards.size != num
+    raise NoMoreCards if cards.size != num
     cards
   end
 end

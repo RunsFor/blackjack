@@ -26,6 +26,11 @@ class Blackjack::GameService
     if current_player_hand.blackjack? || dealer_hand.blackjack?
       end_round
     end
+
+  rescue Blackjack::Deck::NoMoreCards => err
+    @results[:completed] = true
+    @results[:player] << :draw
+    @results[:message] = err.message
   end
 
   def results
@@ -56,6 +61,10 @@ class Blackjack::GameService
     if current_player_hand.points >= 21
       stay
     end
+  rescue Blackjack::Deck::NoMoreCards => err
+    @results[:completed] = true
+    @results[:player] << :draw
+    @results[:message] = err.message
   end
 
   def split
@@ -102,6 +111,10 @@ class Blackjack::GameService
     while @dealer_hand.reveal.points < 17
       @dealer_hand.take *deck.get(1)
     end
+  rescue Blackjack::Deck::NoMoreCards => err
+    @results[:completed] = true
+    @results[:player] << :draw
+    @results[:message] = err.message
   end
 
   def end_round
