@@ -9,6 +9,7 @@ class Blackjack::GameService
     :total_amount, :hand_number
 
   def initialize(deck: nil, options: {})
+    # TODO: put bet into results
     @current_bet = options[:bet] || 50
     @total_amount = options[:amount] || 1000
     raise InvalidBet if @current_bet > @total_amount
