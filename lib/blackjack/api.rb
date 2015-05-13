@@ -64,25 +64,19 @@ class Blackjack::Api < Sinatra::Base
 
   post '/round.json' do
     game.deal(bet: game_params[:bet])
-
     storage.store(game)
-
     game.results.to_json
   end
 
   post '/hit.json' do
     game.hit
-
     storage.store(game)
-
     game.results.to_json
   end
 
   post '/stay.json' do
     game.stay
-
     storage.store(game)
-
     game.results.to_json
   end
 
@@ -90,21 +84,18 @@ class Blackjack::Api < Sinatra::Base
   post '/double.json' do
     game.double
     storage.store(game)
-
     game.results.to_json
   end
 
   post '/split.json' do
     game.split
     storage.store(game)
-
     game.results.to_json
   end
 
   post '/surrender.json' do
     game.surrender
     storage.store(game)
-
     game.results.to_json
   end
 
