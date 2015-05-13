@@ -10,8 +10,8 @@ class Blackjack::GameService
     @results = { player: [], total_amount: @total_amount, completed: true }
     @hand_number = 0
     @deck = deck || Blackjack::Deck.new
-    @player_hands = [  ]
-    @dealer_hand =  nil
+    @player_hands = [ Blackjack::Hand::Nil.new ]
+    @dealer_hand =  Blackjack::Hand::Nil.new
   end
 
   def deal
@@ -47,7 +47,7 @@ class Blackjack::GameService
   end
 
   def current_bet
-    @player_hands.empty? ? @current_bet : @player_hands.map(&:bet).reduce(:+)
+    @player_hands.map(&:bet).reduce(:+)
   end
 
   def hit

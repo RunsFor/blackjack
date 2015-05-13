@@ -1,6 +1,24 @@
 require 'forwardable'
 
 class Blackjack::Hand
+  class Nil
+    def to_s
+      "Empty Hand"
+    end
+
+    def points
+      0
+    end
+
+    def bet
+      0
+    end
+
+    def size
+      0
+    end
+  end
+
   extend Forwardable
 
   attr_accessor :bet

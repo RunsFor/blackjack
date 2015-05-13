@@ -21,17 +21,35 @@ describe Blackjack::GameService do
       expect(game).to be_round_completed
     end
 
-    it 'bet is 50, total amount is 1000' do
-      expect(game.current_bet).to eq(50)
+    it 'bet is 0, total amount is 1000' do
+      expect(game.current_bet).to eq(0)
       expect(game.total_amount).to eq(1000)
+    end
+
+    context 'after deal' do
+      before { game.deal }
+
+      it 'bet is 50, total amount is 1000' do
+        expect(game.current_bet).to eq(50)
+        expect(game.total_amount).to eq(1000)
+      end
     end
 
     context 'When options provided' do
       let(:options) { { bet: 100, amount: 2000 } }
 
-      it 'bet and amount are settable' do
-        expect(game.current_bet).to eq(100)
+      it 'sets current_bet to 0 before deal' do
+        expect(game.current_bet).to eq(0)
         expect(game.total_amount).to eq(2000)
+      end
+
+      context 'after deal' do
+        before { game.deal }
+
+        it 'bet is 100, total amount is 1000' do
+          expect(game.current_bet).to eq(100)
+          expect(game.total_amount).to eq(2000)
+        end
       end
 
       context 'When bet is more then total amount' do
