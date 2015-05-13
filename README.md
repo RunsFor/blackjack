@@ -21,6 +21,22 @@ To run CLI:
 ruby lib/cli.rb --host=localhost --port=9292 # Defaults: localhost, 9292
 ```
 
+## CLI commands
+
+```
+e       - exit from game
+stat    - server, game status and available actions
+delete  - delete all games
+c       - create new game
+set 100 - set current bet to 100
+r       - create new round
+h       - hit
+s       - stay
+sp      - split
+d       - double
+sur     - surrender
+```
+
 ## Response example
 
 When game in progress:
