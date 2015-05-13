@@ -37,6 +37,7 @@ class Blackjack::GameService
       end_round
     end
 
+  # TODO: Refactor dublication
   rescue Blackjack::Deck::NoMoreCards => err
     @results[:completed] = true
     @results[:player] << :draw

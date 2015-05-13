@@ -11,6 +11,12 @@ class Blackjack::AuthService
     end
   end
 
+  class UnauthorizedAction < StandardError
+    def initialize
+      super 'Method forbidden. Ask :status for available actions'
+    end
+  end
+
   DEFAULT_RIGHTS = {
     round: false,
     hit: false,
@@ -38,6 +44,11 @@ class Blackjack::AuthService
       can :surrender if game.first_round?
       can :double if game.first_round?
     end
+  end
+
+  def authorize!(action)
+    raise UnauthorizedAction unless can?(action)
+    true
   end
 
   def can?(action)

@@ -25,17 +25,7 @@ class Blackjack::Api < Sinatra::Base
     action = matchdata && matchdata[:action]
     if AUTH_ACTIONS.include?(action)
       @game = storage.first
-      @auth = begin
-                Blackjack::AuthService.new(@game)
-              rescue => err
-                halt 404, { status: :fail, message: err.message }.to_json
-              end
-      unless @auth.can?(action)
-        halt 403, {
-          status: :fail,
-          message: 'Method forbidden. Ask :status for available actions',
-        }.to_json
-      end
+      @auth = Blackjack::AuthService.new(@game).authorize!(action)
     end
   end
 
@@ -45,6 +35,7 @@ class Blackjack::Api < Sinatra::Base
 
     response = { status: :ok, message: nil }
 
+    # TODO: Maybe refactor
     auth = begin
              Blackjack::AuthService.new(game)
            rescue => err
@@ -125,7 +116,11 @@ class Blackjack::Api < Sinatra::Base
     options
   end
 
-  error Blackjack::GameService::InvalidBet do
+  error Blackjack::GameService::InvalidBet, Blackjack::AuthService::UnauthorizedAction do
     halt 403, { status: :fail, message: request.env['sinatra.error'].message }.to_json
+  end
+
+  error do
+    halt 404, { status: :fail, message: request.env['sinatra.error'].message }.to_json
   end
 end

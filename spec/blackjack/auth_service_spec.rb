@@ -7,6 +7,23 @@ describe Blackjack::AuthService do
   let(:deck) { Blackjack::Deck.new }
   let(:options) { {} }
 
+  context '#authorize!' do
+    context 'when authorized' do
+      it 'returns true' do
+        expect(auth).to receive(:can?).with(:game) { true }
+        expect(auth.authorize!(:game)).to eq(true)
+      end
+    end
+
+    context 'when unauthorized' do
+      it 'raises exception' do
+        expect(auth).to receive(:can?).with(:game) { false }
+        expect { auth.authorize!(:game) }
+          .to raise_error(Blackjack::AuthService::UnauthorizedAction)
+      end
+    end
+  end
+
   context 'When no game provided' do
     let(:game) { nil }
 
