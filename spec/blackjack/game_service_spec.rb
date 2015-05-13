@@ -69,6 +69,21 @@ describe Blackjack::GameService do
     let(:ten) { Blackjack::Card.new(rank: :'10') }
     let(:cards) { [ king, queen, king, ten ] }
 
+    describe 'defaults' do
+      context 'when options provided' do
+        let(:options) { { bet: 50, amount: 1000 } }
+
+        it 'sets bet' do
+          game.deal(bet: 100)
+          expect(game.current_player_hand.bet).to eq(100)
+        end
+
+        it 'raises error if bet more than total_amount' do
+          expect { game.deal(bet: 2000) }.to raise_error
+        end
+      end
+    end
+
     context 'When player gets blackjack' do
       let(:cards) { [ king, ace, king, queen ] }
 

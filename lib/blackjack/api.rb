@@ -1,9 +1,12 @@
 require 'json'
 require 'sinatra'
 require 'blackjack/auth_service'
+require 'blackjack/game_service'
 require 'pry'
 
 class Blackjack::Api < Sinatra::Base
+  set :show_exceptions, false
+
   AUTH_ACTIONS = %w(round hit stay double split surrender)
 
   attr_reader :filename, :storage, :game
@@ -56,10 +59,9 @@ class Blackjack::Api < Sinatra::Base
     response.to_json
   end
 
-  # TODO: Set bet and total amount
   post '/game.json' do
     deck = Blackjack::Deck.new
-    game = Blackjack::GameService.new(deck: deck)
+    game = Blackjack::GameService.new(deck: deck, options: game_params)
     storage.store(game)
     { status: 'ok' }.to_json
   end
@@ -69,9 +71,8 @@ class Blackjack::Api < Sinatra::Base
     { status: 'ok' }.to_json
   end
 
-  # TODO: Set bet and total amount
   post '/round.json' do
-    game.deal
+    game.deal(bet: game_params[:bet])
 
     storage.store(game)
 
@@ -114,5 +115,17 @@ class Blackjack::Api < Sinatra::Base
     storage.store(game)
 
     game.results.to_json
+  end
+
+  def game_params
+    options = params['params']
+    options[:bet] = options['bet'].to_i if options['bet'] =~ /^\d+$/
+    options[:total_amount] = options['total_amount'].to_i if options['total_amount'] =~ /^\d+$/
+    options.delete('bet') && options.delete('total_amount')
+    options
+  end
+
+  error Blackjack::GameService::InvalidBet do
+    halt 403, { status: :fail, message: request.env['sinatra.error'].message }.to_json
   end
 end

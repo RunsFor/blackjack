@@ -18,39 +18,44 @@ PORT = parse_args(ARGV)['--port'] || '9292'
 URL = "http://#{HOST}:#{PORT}/"
 
 def start_game
+  bet = 50
   cmd = ""
   while (cmd != 'q') do
     question = "Enter command?" \
-      "(e - exit; stat - status; delete - delete game;" \
-      " c - create game; r - create round; h - hit;" \
-      " s - stay; sp - split; d - double; sur - surrender)"
+      "(e - exit; stat - :status; delete - delete :game;" \
+      " c - create :game; set 10 - set bet; r - create :round; h - :hit;" \
+      " s - :stay; sp - :split; d - :double; sur - :surrender)"
 
     cmd = ask question
 
-    result = case cmd
-             when 'e', 'exit'
-               break
-             when 'delete'
-               delete :game
-             when 'c', 'create'
-               post :game
-             when 'r', 'round'
-               post :round
-             when 'h', 'hit'
-               post :hit
-             when 's', 'stay'
-               post :stay
-             when 'sp', 'split'
-               post :split
-             when 'd', 'double'
-               post :double
-             when 'sur', 'surrender'
-               post :surrender
-             when 'stat', 'status'
-               get :status
-             end
+    response = case cmd
+               when 'e', 'exit'
+                 break
+               when 'delete'
+                 delete :game
+               when 'c', 'create'
+                 post :game, bet: bet
+               when 'r', 'round'
+                 post :round, bet: bet
+               when 'h', 'hit'
+                 post :hit
+               when 's', 'stay'
+                 post :stay
+               when 'sp', 'split'
+                 post :split
+               when 'd', 'double'
+                 post :double
+               when 'sur', 'surrender'
+                 post :surrender
+               when 'stat', 'status'
+                 get :status
+               when /^set\s\d*$/
+                 bet = cmd.split[1].to_i
+                 next
+               else next
+               end
 
-    ap parse_json(result)
+    ap parse_json(response)
   end
 end
 

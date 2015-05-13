@@ -1,11 +1,17 @@
 class Blackjack::GameService
+  class InvalidBet < StandardError
+    def initialize
+      super 'Bet cannot be more than total amount'
+    end
+  end
+
   attr_reader :dealer_hand, :player_hands, :deck,
     :total_amount, :hand_number
 
   def initialize(deck: nil, options: {})
     @current_bet = options[:bet] || 50
     @total_amount = options[:amount] || 1000
-    raise "Bet cannot be more than total amount" if @current_bet > @total_amount
+    raise InvalidBet if @current_bet > @total_amount
 
     @results = { player: [], total_amount: @total_amount, completed: true }
     @hand_number = 0
@@ -14,7 +20,11 @@ class Blackjack::GameService
     @dealer_hand =  Blackjack::Hand::Nil.new
   end
 
-  def deal
+  # TODO: What if money not enough?
+  def deal(bet: nil)
+    @current_bet = bet || @current_bet
+    raise InvalidBet if @current_bet > @total_amount
+
     @results = { player: [], total_amount: @total_amount, completed: false }
     @hand_number = 1
     @player_hands = [ Blackjack::Hand.new(cards: @deck.get(2), bet: @current_bet) ]
